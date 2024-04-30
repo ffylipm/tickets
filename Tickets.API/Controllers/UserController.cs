@@ -50,5 +50,11 @@ namespace Tickets.API.Controllers
         {
             return await service.DelUser(add);
         }
+
+        [HttpPost("login", Name = nameof(Login))]
+        public async Task<UserDTO> Login(UserDTO login)
+        {
+            return await service.Login(login);
+        }
     }
 }
