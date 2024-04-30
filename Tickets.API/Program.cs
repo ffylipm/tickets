@@ -24,6 +24,7 @@ namespace Tickets.API
             builder.Services.AddScoped<RolService>();
             builder.Services.AddScoped<UserService>();
             builder.Services.AddDbContext<TicketsContext>(o => o.UseSqlServer(Configuration.GetConnectionString("Tickets")));
+            builder.Services.AddCors();
 
             var app = builder.Build();
 
@@ -36,6 +37,13 @@ namespace Tickets.API
 
             app.UseAuthorization();
 
+            // global cors policy
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true) // allow any origin
+                                                    //.WithOrigins("https://localhost:44351")); // Allow only this origin can also have multiple origins separated with comma
+                .AllowCredentials()); // allow credentials
 
             app.MapControllers();
 
