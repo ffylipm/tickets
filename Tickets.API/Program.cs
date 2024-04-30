@@ -20,6 +20,8 @@ namespace Tickets.API
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddScoped<MenuService>();
+            builder.Services.AddScoped<RolService>();
             builder.Services.AddScoped<UserService>();
             builder.Services.AddDbContext<TicketsContext>(o => o.UseSqlServer(Configuration.GetConnectionString("Tickets")));
 

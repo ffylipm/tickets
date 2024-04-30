@@ -5,11 +5,11 @@ namespace Tickets.Models;
 
 public partial class RolDTO
 {
-    public string RolId { get; set; } = null!;
+    public string? RolId { get; set; } = null!;
 
-    public string Name { get; set; } = null!;
+    public string? Name { get; set; } = null!;
 
-    public string Description { get; set; } = null!;
+    public string? Description { get; set; } = null!;
 
     public bool Active { get; set; }
 

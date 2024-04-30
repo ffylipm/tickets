@@ -15,7 +15,7 @@ namespace Tickets.API.Service
 
         public async Task<IEnumerable<MenuDTO>> GetMenus(string? menuId, string? name, string? description, string? path)
         {
-            var query = context.Menus.Select(m => m);
+            var query = context.Menus.Where(m => m.Active);
 
             if (!string.IsNullOrEmpty(menuId))
             {
@@ -68,6 +68,7 @@ namespace Tickets.API.Service
         {
             Menu menu  = new Menu() 
             {
+                MenuId = add.MenuId,
                 Active = true,
                 Path = add.Path,
                 Description = add.Description,
@@ -76,6 +77,8 @@ namespace Tickets.API.Service
 
             context.Menus.Add(menu);
             await context.SaveChangesAsync();
+
+            add.Active = true;
 
             return add;
         }
@@ -89,6 +92,8 @@ namespace Tickets.API.Service
 
             context.Menus.Update(menu);
             await context.SaveChangesAsync();
+
+            upd.Active = menu.Active;
 
             return upd;
         }

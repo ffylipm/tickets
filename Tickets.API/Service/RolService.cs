@@ -18,7 +18,7 @@ namespace Tickets.API.Service
             var query = context.Rols
                 .Include(r => r.RolMenus)
                 .ThenInclude(r => r.Menu)
-                .Select(m => m);
+                .Where(r => r.Active);
 
             if (!string.IsNullOrEmpty(rolId))
             {
@@ -77,6 +77,7 @@ namespace Tickets.API.Service
         {
             Rol rol = new ()
             {
+                RolId = add.RolId,
                 Active = true,
                 Name = add.Name,
                 Description = add.Description,

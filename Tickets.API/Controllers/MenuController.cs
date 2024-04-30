@@ -17,7 +17,7 @@ namespace Tickets.API.Controllers
             this.service = service;
         }
 
-        [HttpGet(Name = "")]
+        [HttpGet("", Name = nameof(GetMenus))]
         public async Task<IEnumerable<MenuDTO>> GetMenus(
             [FromQuery] string? menuId,
             [FromQuery] string? name,
@@ -27,19 +27,19 @@ namespace Tickets.API.Controllers
             return await service.GetMenus(menuId, name, description, path);
         }
 
-        [HttpPost(Name = "")]
+        [HttpPost("", Name = nameof(AddMenu))]
         public async Task<MenuDTO> AddMenu(MenuDTO add)
         {
             return await service.AddMenu(add);
         }
 
-        [HttpPut(Name = "")]
+        [HttpPut("", Name = nameof(UpdMenu))]
         public async Task<MenuDTO> UpdMenu(MenuDTO add)
         {
             return await service.UpdMenu(add);
         }
 
-        [HttpDelete(Name = "")]
+        [HttpDelete("", Name = nameof(DelMenu))]
         public async Task<MenuDTO> DelMenu(MenuDTO add)
         {
             return await service.DelMenu(add);

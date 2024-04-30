@@ -17,7 +17,7 @@ namespace Tickets.API.Controllers
             this.service = service;
         }
 
-        [HttpGet(Name = "")]
+        [HttpGet("", Name = nameof(GetUsers))]
         public async Task<IEnumerable<UserDTO>> GetUsers(
             [FromQuery][Required] int skip,
             [FromQuery][Required] int take,
@@ -33,19 +33,19 @@ namespace Tickets.API.Controllers
             return await service.GetUsers(skip, take, name, lastname, phone, document, documentType, userId, active);
         }
 
-        [HttpPost(Name = "")]
+        [HttpPost("", Name = nameof(AddUser))]
         public async Task<UserDTO> AddUser(UserDTO add)
         {
             return await service.AddUser(add);
         }
 
-        [HttpPut(Name = "")]
+        [HttpPut("", Name = nameof(UpdUser))]
         public async Task<UserDTO> UpdUser(UserDTO add)
         {
             return await service.UpdUser(add);
         }
 
-        [HttpDelete(Name = "")]
+        [HttpDelete("", Name = nameof(DelUser))]
         public async Task<UserDTO> DelUser(UserDTO add)
         {
             return await service.DelUser(add);

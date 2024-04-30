@@ -26,7 +26,7 @@ namespace Tickets.API.Service
             bool? active
             )
         {
-            var query = context.Users.Select(u => u);
+            var query = context.Users.Where(u => u.Active);
 
             if (!string.IsNullOrEmpty(name))
             {
@@ -169,7 +169,7 @@ namespace Tickets.API.Service
 
                 IEnumerable<UserRol> rols = add.Rols.Select(r => new UserRol() 
                 {
-                    Active = r.Active,
+                    Active = true,
                     RolId = r.RolId,
                     UserId = user.UserId
                 });
@@ -191,7 +191,6 @@ namespace Tickets.API.Service
             user.DocumentType = upd.DocumentType;
             user.Lastname = upd.Lastname;
             user.Name = upd.Name;
-            user.Password = upd.Password;
             user.Phone = upd.Phone;
 
             context.Users.Update(user);

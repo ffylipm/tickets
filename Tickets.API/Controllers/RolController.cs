@@ -17,7 +17,7 @@ namespace Tickets.API.Controllers
             this.service = service;
         }
 
-        [HttpGet(Name = "")]
+        [HttpGet("", Name = nameof(GetRols))]
         public async Task<IEnumerable<RolDTO>> GetRols(
             [FromQuery] string? rolId,
             [FromQuery] string? name,
@@ -27,22 +27,22 @@ namespace Tickets.API.Controllers
             return await service.GetRols(rolId, name, description);
         }
 
-        [HttpPost(Name = "")]
-        public async Task<UserDTO> AddUser(UserDTO add)
+        [HttpPost("", Name = nameof(AddRol))]
+        public async Task<RolDTO> AddRol(RolDTO add)
         {
-            return await service.AddUser(add);
+            return await service.AddRol(add);
         }
 
-        [HttpPut(Name = "")]
-        public async Task<UserDTO> UpdUser(UserDTO add)
+        [HttpPut("", Name = nameof(UpdRol))]
+        public async Task<RolDTO> UpdRol(RolDTO upd)
         {
-            return await service.UpdUser(add);
+            return await service.UpdRol(upd);
         }
 
-        [HttpDelete(Name = "")]
-        public async Task<UserDTO> DelUser(UserDTO add)
+        [HttpDelete("", Name = nameof(DelRol))]
+        public async Task<RolDTO> DelRol(RolDTO del)
         {
-            return await service.DelUser(add);
+            return await service.DelRol(del);
         }
     }
 }
