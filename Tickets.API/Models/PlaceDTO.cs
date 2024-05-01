@@ -7,9 +7,9 @@ public partial class PlaceDTO
 {
     public int PlaceId { get; set; }
 
-    public string NameShort { get; set; } = null!;
+    public string? NameShort { get; set; } = null!;
 
-    public string NameFull { get; set; } = null!;
+    public string? NameFull { get; set; } = null!;
 
     public bool Active { get; set; }
 

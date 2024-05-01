@@ -16,7 +16,7 @@ namespace Tickets.API.Service
 
         public async Task<IEnumerable<EventDTO>> GetEvents(int? eventId, string? name, string? description)
         {
-            var query = context.Events.Where(r => r.Active);
+            var query = context.Events.Include(e => e.Place).Where(r => r.Active);
 
             if (eventId.HasValue)
             {
@@ -41,7 +41,16 @@ namespace Tickets.API.Service
                 EventId = r.EventId,
                 MaxTicketQty = r.MaxTicketQty,
                 MinTicketQty = r.MinTicketQty,
-                PlaceId = r.PlaceId
+                PlaceId = r.PlaceId,
+                Place = r.Place == null ? null : new PlaceDTO() 
+                {
+                    Active = r.Place.Active,
+                    PlaceId = r.Place.PlaceId,
+                    Address = r.Place.Address,
+                    NameShort = r.Place.NameShort,
+                    NameFull = r.Place.NameFull,
+                    Capacity = r.Place.Capacity
+                }
             }).ToListAsync();
         }
 
@@ -66,7 +75,7 @@ namespace Tickets.API.Service
         {
             Event e = new()
             {
-                Active = add.Active,
+                Active = true,
                 Description = add.Description,
                 Name = add.Name,
                 EventId = add.EventId,
@@ -77,6 +86,8 @@ namespace Tickets.API.Service
 
             context.Events.Add(e);
             await context.SaveChangesAsync();
+
+            add.EventId = e.EventId;
 
             return add;
         }

@@ -14,13 +14,13 @@ namespace Tickets.API.Service
             this.context = context;
         }
 
-        public async Task<IEnumerable<PlaceDTO>> GetPlaces(int? placeId, string? nameFull, string? nameShort)
+        public async Task<IEnumerable<PlaceDTO>> GetPlaces(int? placeId, string? nameFull, string? nameShort, string? address)
         {
             var query = context.Places.Where(r => r.Active);
 
             if (placeId.HasValue)
             {
-                //query = query.Where(m => m.PlaceId == placeId.Value);
+                query = query.Where(m => m.PlaceId == placeId.Value);
             }
 
             if (!string.IsNullOrEmpty(nameFull))
@@ -31,6 +31,11 @@ namespace Tickets.API.Service
             if (!string.IsNullOrEmpty(nameShort))
             {
                 query = query.Where(m => m.NameShort.Contains(nameShort));
+            }
+
+            if (!string.IsNullOrEmpty(address))
+            {
+                query = query.Where(m => m.Address !=null && m.Address.Contains(address));
             }
 
             return await query.Select(r => new PlaceDTO
@@ -44,63 +49,61 @@ namespace Tickets.API.Service
             }).ToListAsync();
         }
 
-        public async Task<Event> GetEvent(int eventId, bool? active = true)
+        public async Task<Place> GetPlace(int placeId, bool? active = true)
         {
-            Event? e = await context.Events.FirstOrDefaultAsync(m => m.EventId == eventId);
-            if (e == null)
+            Place? place = await context.Places.FirstOrDefaultAsync(m => m.PlaceId == placeId);
+            if (place == null)
             {
-                throw new CustomException("No existe el evento.");
+                throw new CustomException("No existe el lugar.");
             }
 
-            if (active.HasValue && active.Value && !e.Active)
+            if (active.HasValue && active.Value && !place.Active)
             {
-                throw new CustomException("El evento está inactivo.");
+                throw new CustomException("El lugar está inactivo.");
             }
 
-            return e;
+            return place;
         }
 
 
-        public async Task<EventDTO> AddEvent(EventDTO add)
+        public async Task<PlaceDTO> AddPlace(PlaceDTO add)
         {
-            Event e = new()
+            Place place = new()
             {
-                Active = add.Active,
-                Description = add.Description,
-                Name = add.Name,
-                EventId = add.EventId,
-                MaxTicketQty = add.MaxTicketQty,
-                MinTicketQty = add.MinTicketQty,
-                PlaceId = add.PlaceId
+                Active = true,
+                Address = add.Address,
+                Capacity = add.Capacity,
+                NameFull = add.NameFull,
+                NameShort = add.NameShort
             };
 
-            //context.Events.(e);
+            context.Places.Add(place);
             await context.SaveChangesAsync();
+            add.PlaceId = place.PlaceId;
 
             return add;
         }
 
-        public async Task<EventDTO> UpdEvent(EventDTO upd)
+        public async Task<PlaceDTO> UpdPlace(PlaceDTO upd)
         {
-            Event e = await GetEvent(upd.EventId);
-            e.Name = upd.Name;
-            e.Description = upd.Description;
-            e.MinTicketQty = upd.MinTicketQty;
-            e.MaxTicketQty = upd.MaxTicketQty;
-            e.PlaceId = upd.PlaceId;
+            Place place = await GetPlace(upd.PlaceId);
+            place.Capacity = upd.Capacity;
+            place.Address = upd.Address;
+            place.NameShort = upd.NameShort;
+            place.NameFull = upd.NameFull;
 
-            context.Events.Update(e);
+            context.Places.Update(place);
             await context.SaveChangesAsync();
 
             return upd;
         }
 
-        public async Task<EventDTO> DelEvent(EventDTO del)
+        public async Task<PlaceDTO> DelPlace(PlaceDTO del)
         {
-            Event e = await GetEvent(del.EventId, active: false);
-            e.Active = false;
+            Place place = await GetPlace(del.PlaceId, active: false);
+            place.Active = false;
 
-            context.Events.Update(e);
+            context.Places.Update(place);
             await context.SaveChangesAsync();
 
             return del;

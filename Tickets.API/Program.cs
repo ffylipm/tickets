@@ -23,6 +23,8 @@ namespace Tickets.API
             builder.Services.AddScoped<MenuService>();
             builder.Services.AddScoped<RolService>();
             builder.Services.AddScoped<UserService>();
+            builder.Services.AddScoped<EventService>();
+            builder.Services.AddScoped<PlaceService>();
             builder.Services.AddDbContext<TicketsContext>(o => o.UseSqlServer(Configuration.GetConnectionString("Tickets")));
             builder.Services.AddCors();
 

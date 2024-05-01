@@ -8,11 +8,11 @@ namespace Tickets.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class EventController : ControllerBase
+    public class EventsController : ControllerBase
     {
         private readonly EventService service;
 
-        public EventController(EventService service)
+        public EventsController(EventService service)
         {
             this.service = service;
         }
