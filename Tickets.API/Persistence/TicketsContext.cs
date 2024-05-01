@@ -31,11 +31,15 @@ public partial class TicketsContext : DbContext
 
     public virtual DbSet<UserRol> UserRols { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=18.221.84.173;Database=Tickets; User Id=ws;Password=ws; Encrypt=false;");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Event>(entity =>
         {
-            entity.HasKey(e => e.EventId).HasName("PK__event__2DC7BD0925089D66");
+            entity.HasKey(e => e.EventId).HasName("PK__Event__2DC7BD0989879D0E");
 
             entity.ToTable("Event");
 
@@ -51,13 +55,11 @@ public partial class TicketsContext : DbContext
                 .HasMaxLength(200)
                 .IsUnicode(false)
                 .HasColumnName("name");
-            entity.Property(e => e.PlaceId)
-                .HasMaxLength(200)
-                .IsUnicode(false)
-                .HasColumnName("placeId");
+            entity.Property(e => e.PlaceId).HasColumnName("placeId");
 
             entity.HasOne(d => d.Place).WithMany(p => p.Events)
                 .HasForeignKey(d => d.PlaceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_event_placeId");
         });
 
@@ -88,14 +90,11 @@ public partial class TicketsContext : DbContext
 
         modelBuilder.Entity<Place>(entity =>
         {
-            entity.HasKey(e => e.PlaceId).HasName("PK__place__E1216A36B895CC87");
+            entity.HasKey(e => e.PlaceId).HasName("PK__Place__E1216A361CF0E650");
 
             entity.ToTable("Place");
 
-            entity.Property(e => e.PlaceId)
-                .HasMaxLength(200)
-                .IsUnicode(false)
-                .HasColumnName("placeId");
+            entity.Property(e => e.PlaceId).HasColumnName("placeId");
             entity.Property(e => e.Active).HasColumnName("active");
             entity.Property(e => e.Address)
                 .HasMaxLength(200)
@@ -162,7 +161,7 @@ public partial class TicketsContext : DbContext
 
         modelBuilder.Entity<Ticket>(entity =>
         {
-            entity.HasKey(e => e.TicketId).HasName("PK__ticket__3333C6108BD39217");
+            entity.HasKey(e => e.TicketId).HasName("PK__Ticket__3333C61045FA78F0");
 
             entity.ToTable("Ticket");
 

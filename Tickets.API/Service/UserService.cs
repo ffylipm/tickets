@@ -76,14 +76,14 @@ namespace Tickets.API.Service
                     Lastname = u.Lastname,
                     Phone = u.Phone,
                     UserId = u.UserId,
-                    Rols = u.UserRols.Select(r => new RolDTO()
+                    Rols = u.UserRols.Where(ur => ur.Active).Select(r => new RolDTO()
                     {
                         Active = r.Active,
                         Description = r.Rol.Description,
                         Name = r.Rol.Name,
                         Virtual = r.Rol.Virtual,
                         RolId = r.RolId,
-                        Menus = r.Rol.RolMenus.Select(m => new MenuDTO()
+                        Menus = r.Rol.RolMenus.Where(rm => rm.Active).Select(m => new MenuDTO()
                         {
                             Active = m.Active,
                             Description = m.Menu.Description,
@@ -185,16 +185,50 @@ namespace Tickets.API.Service
 
         public async Task<UserDTO> UpdUser(UserDTO upd)
         {
-            User user = await GetUser(upd.UserId);
+            using (var tx = await context.Database.BeginTransactionAsync())
+            {
+                User user = await GetUser(upd.UserId);
 
-            user.Document = upd.Document;
-            user.DocumentType = upd.DocumentType;
-            user.Lastname = upd.Lastname;
-            user.Name = upd.Name;
-            user.Phone = upd.Phone;
+                user.Document = upd.Document;
+                user.DocumentType = upd.DocumentType;
+                user.Lastname = upd.Lastname;
+                user.Name = upd.Name;
+                user.Phone = upd.Phone;
 
-            context.Users.Update(user);
-            await context.SaveChangesAsync();
+                foreach (var rol in upd.Rols)
+                {
+                    UserRol? duplicated = await context.UserRols.FirstOrDefaultAsync(ur => ur.UserId == user.UserId && ur.RolId == rol.RolId);
+                    if (duplicated != null)
+                    {
+                        if (duplicated.Active == rol.Active)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            duplicated.Active = rol.Active;
+                            context.UserRols.Update(duplicated);
+                            await context.SaveChangesAsync();
+
+                            continue;
+                        }
+                    }
+
+                    UserRol userrol = new()
+                    {
+                        RolId = rol.RolId,
+                        UserId = user.UserId,
+                        Active = rol.Active
+                    };
+
+                    context.UserRols.Add(userrol);
+                    await context.SaveChangesAsync();
+                }
+
+                context.Users.Update(user);
+                await context.SaveChangesAsync();
+                await tx.CommitAsync();
+            }
 
             return upd;
         }

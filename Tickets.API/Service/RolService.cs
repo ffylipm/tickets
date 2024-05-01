@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using Tickets.API.Common;
 using Tickets.Models;
 using Tickets.Persistence;
@@ -75,30 +76,80 @@ namespace Tickets.API.Service
 
         public async Task<RolDTO> AddRol(RolDTO add)
         {
-            Rol rol = new ()
+            using (var tx = await context.Database.BeginTransactionAsync())
             {
-                RolId = add.RolId,
-                Active = true,
-                Name = add.Name,
-                Description = add.Description,
-                Virtual = add.Virtual
-            };
+                Rol rol = new()
+                {
+                    RolId = add.RolId,
+                    Active = true,
+                    Name = add.Name,
+                    Description = add.Description,
+                    Virtual = add.Virtual
+                };
 
-            context.Rols.Add(rol);
-            await context.SaveChangesAsync();
+                context.Rols.Add(rol);
+                await context.SaveChangesAsync();
+
+                IEnumerable<RolMenu> menus = add.Menus.Select(m => new RolMenu()
+                {
+                    Active = m.Active.Value,
+                    MenuId = m.MenuId,
+                    RolId = rol.RolId
+                }).ToList();
+
+                context.RolMenus.AddRange(menus);
+                await context.SaveChangesAsync();
+
+                await tx.CommitAsync();
+            }
 
             return add;
         }
 
         public async Task<RolDTO> UpdRol(RolDTO upd)
         {
-            Rol rol = await GetRol(upd.RolId);
-            rol.Name = upd.Name;
-            rol.Description = upd.Description;
+            using (var tx = await context.Database.BeginTransactionAsync())
+            {
+                Rol rol = await GetRol(upd.RolId);
+                rol.Name = upd.Name;
+                rol.Description = upd.Description;
 
-            context.Rols.Update(rol);
-            await context.SaveChangesAsync();
+                context.Rols.Update(rol);
+                await context.SaveChangesAsync();
 
+                foreach (var menu in upd.Menus)
+                {
+
+                    RolMenu? duplicated = await context.RolMenus.FirstOrDefaultAsync(rm => rm.RolId == rol.RolId && rm.MenuId == menu.MenuId);
+                    if (duplicated != null)
+                    {
+                        if (duplicated.Active == menu.Active)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            duplicated.Active = menu.Active.Value;
+                            context.RolMenus.Update(duplicated);
+                            await context.SaveChangesAsync();
+                            continue;
+                        }
+                    }
+
+                    RolMenu rolmenu = new RolMenu()
+                    {
+                        Active = true,
+                        MenuId = menu.MenuId,
+                        RolId = rol.RolId
+                    };
+
+                    context.RolMenus.Add(rolmenu);
+                    await context.SaveChangesAsync();
+                }
+
+
+                await tx.CommitAsync();
+            }
             return upd;
         }
 

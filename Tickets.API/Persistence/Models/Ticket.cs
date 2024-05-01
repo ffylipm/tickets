@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Tickets.Models;
 
 namespace Tickets.Persistence;
 

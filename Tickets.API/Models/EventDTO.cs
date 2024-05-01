@@ -13,7 +13,7 @@ public partial class EventDTO
 
     public bool Active { get; set; }
 
-    public string? PlaceId { get; set; }
+    public int PlaceId { get; set; }
 
     public int MinTicketQty { get; set; }
 

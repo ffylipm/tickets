@@ -5,7 +5,7 @@ namespace Tickets.Persistence;
 
 public partial class Place
 {
-    public string PlaceId { get; set; } = null!;
+    public int PlaceId { get; set; }
 
     public string NameShort { get; set; } = null!;
 

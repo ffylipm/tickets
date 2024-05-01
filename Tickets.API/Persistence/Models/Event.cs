@@ -13,13 +13,13 @@ public partial class Event
 
     public bool Active { get; set; }
 
-    public string? PlaceId { get; set; }
+    public int PlaceId { get; set; }
 
     public int MinTicketQty { get; set; }
 
     public int MaxTicketQty { get; set; }
 
-    public virtual Place? Place { get; set; }
+    public virtual Place Place { get; set; } = null!;
 
     public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 }
