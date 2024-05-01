@@ -21,10 +21,11 @@ namespace Tickets.API.Controllers
         [HttpGet("", Name = nameof(GetTickets))]
         public async Task<IEnumerable<TicketDTO>> GetTickets(
             [FromQuery] int? ticketId,
-            [FromQuery] int? eventId
+            [FromQuery] int? eventId,
+            [FromQuery] bool? active
             )
         {
-            return await service.GetTickets(ticketId, eventId);
+            return await service.GetTickets(ticketId, eventId, active);
         }
 
         [HttpPost("", Name = nameof(AddTicket))]

@@ -21,10 +21,11 @@ namespace Tickets.API.Controllers
         public async Task<IEnumerable<RolDTO>> GetRols(
             [FromQuery] string? rolId,
             [FromQuery] string? name,
-            [FromQuery] string? description
+            [FromQuery] string? description,
+            [FromQuery] bool? active
             )
         {
-            return await service.GetRols(rolId, name, description);
+            return await service.GetRols(rolId, name, description, active);
         }
 
         [HttpPost("", Name = nameof(AddRol))]

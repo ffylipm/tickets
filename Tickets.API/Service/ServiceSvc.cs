@@ -16,9 +16,9 @@ namespace Tickets.API.Service
             this.context = context;
         }
 
-        public async Task<IEnumerable<ServiceDTO>> GetServices(int? serviceId, string? name, string? description)
+        public async Task<IEnumerable<ServiceDTO>> GetServices(int? serviceId, string? name, string? description, bool? active)
         {
-            var query = context.Services.Where(r => r.Active);
+            var query = context.Services.Select(r => r);
 
             if (serviceId.HasValue)
             {
@@ -33,6 +33,11 @@ namespace Tickets.API.Service
             if (!string.IsNullOrEmpty(description))
             {
                 query = query.Where(m => m.Description.Contains(description));
+            }
+
+            if (active.HasValue)
+            {
+                query = query.Where(s => s.Active == active.Value);
             }
 
             return await query.Select(r => new ServiceDTO
@@ -80,9 +85,14 @@ namespace Tickets.API.Service
 
         public async Task<ServiceDTO> UpdService(ServiceDTO upd)
         {
-            EService service = await GetService(upd.ServiceId);
+            EService service = await GetService(upd.ServiceId, active: false);
             service.Name = upd.Name;
             service.Description = upd.Description;
+
+            if (upd.Active && !service.Active)
+            {
+                service.Active = upd.Active;
+            }
 
             context.Services.Update(service);
             await context.SaveChangesAsync();

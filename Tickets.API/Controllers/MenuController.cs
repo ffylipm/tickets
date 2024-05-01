@@ -22,9 +22,10 @@ namespace Tickets.API.Controllers
             [FromQuery] string? menuId,
             [FromQuery] string? name,
             [FromQuery] string? description,
-            [FromQuery] string? path)
+            [FromQuery] string? path,
+            [FromQuery] bool? active)
         {
-            return await service.GetMenus(menuId, name, description, path);
+            return await service.GetMenus(menuId, name, description, path, active);
         }
 
         [HttpPost("", Name = nameof(AddMenu))]

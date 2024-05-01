@@ -14,4 +14,5 @@ public partial class TicketDTO
     public bool Used { get; set; }
     public bool Active { get; set; }
     public DateTime IssueOn { get; set; }
+    public EventDTO? Event { get; set; }
 }

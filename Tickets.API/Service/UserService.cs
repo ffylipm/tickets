@@ -26,7 +26,7 @@ namespace Tickets.API.Service
             bool? active
             )
         {
-            var query = context.Users.Where(u => u.Active);
+            var query = context.Users.Select(u => u);
 
             if (!string.IsNullOrEmpty(name))
             {
@@ -96,7 +96,7 @@ namespace Tickets.API.Service
                 }).ToListAsync();
         }
 
-        public async Task<User> GetUser(string userId)
+        public async Task<User> GetUser(string userId, bool active = true)
         {
             User? user = await context.Users
             .Include(u => u.UserRols)
@@ -110,7 +110,7 @@ namespace Tickets.API.Service
                 throw new CustomException($"No existe el usuario.");
             }
 
-            if (!user.Active)
+            if (active && !user.Active)
             {
                 throw new CustomException($"El usuario está inactivo.");
 
@@ -187,13 +187,18 @@ namespace Tickets.API.Service
         {
             using (var tx = await context.Database.BeginTransactionAsync())
             {
-                User user = await GetUser(upd.UserId);
+                User user = await GetUser(upd.UserId, active: false);
 
                 user.Document = upd.Document;
                 user.DocumentType = upd.DocumentType;
                 user.Lastname = upd.Lastname;
                 user.Name = upd.Name;
                 user.Phone = upd.Phone;
+
+                if (upd.Active && !user.Active)
+                {
+                    user.Active = upd.Active;
+                }
 
                 foreach (var rol in upd.Rols)
                 {

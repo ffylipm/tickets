@@ -22,10 +22,11 @@ namespace Tickets.API.Controllers
             [FromQuery] int? placeId,
             [FromQuery] string? nameFull,
             [FromQuery] string? nameShort,
-            [FromQuery] string? address
+            [FromQuery] string? address,
+            [FromQuery] bool? active
             )
         {
-            return await service.GetPlaces(placeId, nameFull, nameShort, address);
+            return await service.GetPlaces(placeId, nameFull, nameShort, address, active);
         }
 
         [HttpPost("", Name = nameof(AddPlace))]

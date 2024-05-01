@@ -14,9 +14,9 @@ namespace Tickets.API.Service
             this.context = context;
         }
 
-        public async Task<IEnumerable<EventDTO>> GetEvents(int? eventId, string? name, string? description)
+        public async Task<IEnumerable<EventDTO>> GetEvents(int? eventId, string? name, string? description, bool? active)
         {
-            var query = context.Events.Include(e => e.Place).Where(r => r.Active);
+            var query = context.Events.Include(e => e.Place).Select(r => r);
 
             if (eventId.HasValue)
             {
@@ -31,6 +31,11 @@ namespace Tickets.API.Service
             if (!string.IsNullOrEmpty(description))
             {
                 query = query.Where(m => m.Description.Contains(description));
+            }
+
+            if (active.HasValue)
+            {
+                query = query.Where(e => e.Active == active.Value);
             }
 
             return await query.Select(r => new EventDTO
@@ -94,12 +99,17 @@ namespace Tickets.API.Service
 
         public async Task<EventDTO> UpdEvent(EventDTO upd)
         {
-            Event e = await GetEvent(upd.EventId);
+            Event e = await GetEvent(upd.EventId, active: false);
             e.Name = upd.Name;
             e.Description = upd.Description;
             e.MinTicketQty = upd.MinTicketQty;
             e.MaxTicketQty = upd.MaxTicketQty;
             e.PlaceId = upd.PlaceId;
+
+            if (upd.Active && !e.Active)
+            {
+                e.Active = upd.Active;
+            }
 
             context.Events.Update(e);
             await context.SaveChangesAsync();

@@ -14,12 +14,12 @@ namespace Tickets.API.Service
             this.context = context;
         }
 
-        public async Task<IEnumerable<RolDTO>> GetRols(string? rolId, string? name, string? description)
+        public async Task<IEnumerable<RolDTO>> GetRols(string? rolId, string? name, string? description, bool? active)
         {
             var query = context.Rols
                 .Include(r => r.RolMenus)
                 .ThenInclude(r => r.Menu)
-                .Where(r => r.Active);
+                .Select(r => r);
 
             if (!string.IsNullOrEmpty(rolId))
             {
@@ -34,6 +34,11 @@ namespace Tickets.API.Service
             if (!string.IsNullOrEmpty(description))
             {
                 query = query.Where(m => m.Description.Contains(description));
+            }
+
+            if (active.HasValue)
+            {
+                query = query.Where(m => m.Active == active.Value);
             }
 
             return await query.Select(r => new RolDTO
@@ -99,9 +104,14 @@ namespace Tickets.API.Service
         {
             using (var tx = await context.Database.BeginTransactionAsync())
             {
-                Rol rol = await GetRol(upd.RolId);
+                Rol rol = await GetRol(upd.RolId, active: false);
                 rol.Name = upd.Name;
                 rol.Description = upd.Description;
+
+                if (upd.Active && !rol.Active)
+                {
+                    rol.Active = upd.Active;
+                }
 
                 context.Rols.Update(rol);
                 await context.SaveChangesAsync();
@@ -118,7 +128,7 @@ namespace Tickets.API.Service
                         }
                         else
                         {
-                            duplicated.Active = menu.Active.Value;
+                            duplicated.Active = menu.Active;
                             context.RolMenus.Update(duplicated);
                             await context.SaveChangesAsync();
                             continue;

@@ -15,12 +15,12 @@ namespace Tickets.API.Service
             this.context = context;
         }
 
-        public async Task<IEnumerable<TicketDTO>> GetTickets(int? ticketId, int? eventId)
+        public async Task<IEnumerable<TicketDTO>> GetTickets(int? ticketId, int? eventId, bool? active)
         {
             var query = context.Tickets
                 .Include(t => t.Event)
                 .ThenInclude(e => e.Place)
-                .Where(t => t.Active);
+                .Select(t => t);
 
             if (ticketId.HasValue)
             {
@@ -32,14 +32,38 @@ namespace Tickets.API.Service
                 query = query.Where(t => t.EventId == eventId);
             }
 
+            if (active.HasValue)
+            {
+                query = query.Where(t => t.Active == active.Value);
+            }
+
             return await query.Select(t => new TicketDTO
             {
                 EventId = t.EventId,
+                Active = t.Active,
+                IssueOn = t.IssueOn,
                 TicketId = t.TicketId,
                 Used = t.Used,
-                IssueOn = t.IssueOn,
                 UserId = t.UserId,
-                Active = t.Active
+                Event = t.Event == null ? null : new EventDTO()
+                {
+                    Active = t.Event.Active,
+                    Description = t.Event.Description,
+                    Name = t.Event.Name,
+                    EventId = t.Event.EventId,
+                    MaxTicketQty = t.Event.MaxTicketQty,
+                    MinTicketQty = t.Event.MinTicketQty,
+                    PlaceId = t.Event.PlaceId,
+                    Place = t.Event.Place == null ? null : new PlaceDTO()
+                    {
+                        Active = t.Event.Place.Active,
+                        PlaceId = t.Event.Place.PlaceId,
+                        Address = t.Event.Place.Address,
+                        NameShort = t.Event.Place.NameShort,
+                        NameFull = t.Event.Place.NameFull,
+                        Capacity = t.Event.Place.Capacity
+                    }
+                }
             }).ToListAsync();
         }
 
@@ -89,8 +113,13 @@ namespace Tickets.API.Service
 
         public async Task<TicketDTO> UpdTicket(TicketDTO upd)
         {
-            Ticket ticket = await GetTicket(upd.TicketId);
+            Ticket ticket = await GetTicket(upd.TicketId, active: false);
             ticket.Used = upd.Used;
+
+            if (upd.Active == !ticket.Active)
+            {
+                ticket.Active = upd.Active;
+            }
 
             context.Tickets.Update(ticket);
             await context.SaveChangesAsync();

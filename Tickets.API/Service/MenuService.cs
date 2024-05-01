@@ -13,9 +13,9 @@ namespace Tickets.API.Service
             this.context = context;
         }
 
-        public async Task<IEnumerable<MenuDTO>> GetMenus(string? menuId, string? name, string? description, string? path)
+        public async Task<IEnumerable<MenuDTO>> GetMenus(string? menuId, string? name, string? description, string? path, bool? active)
         {
-            var query = context.Menus.Where(m => m.Active);
+            var query = context.Menus.Select(m => m);
 
             if (!string.IsNullOrEmpty(menuId))
             {
@@ -35,6 +35,11 @@ namespace Tickets.API.Service
             if (!string.IsNullOrEmpty(path))
             {
                 query = query.Where(m => m.Path.Contains(path));
+            }
+
+            if (active.HasValue)
+            {
+                query = query.Where(m => m.Active == active.Value);
             }
 
             return await query.Select(m => new MenuDTO 
@@ -85,10 +90,15 @@ namespace Tickets.API.Service
 
         public async Task<MenuDTO> UpdMenu(MenuDTO upd)
         {
-            Menu menu = await GetMenu(upd.MenuId);
+            Menu menu = await GetMenu(upd.MenuId, active: false);
             menu.Name = upd.Name;
             menu.Description = upd.Description;
             menu.Path = upd.Path;
+
+            if (upd.Active && !menu.Active)
+            {
+                menu.Active = upd.Active;
+            }
 
             context.Menus.Update(menu);
             await context.SaveChangesAsync();

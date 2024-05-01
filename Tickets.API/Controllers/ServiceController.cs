@@ -22,10 +22,11 @@ namespace Tickets.API.Controllers
         public async Task<IEnumerable<ServiceDTO>> GetServices(
             [FromQuery] int? serviceId,
             [FromQuery] string? name,
-            [FromQuery] string? description
+            [FromQuery] string? description,
+            [FromQuery] bool? active
             )
         {
-            return await service.GetServices(serviceId, name, description);
+            return await service.GetServices(serviceId, name, description, active);
         }
 
         [HttpPost("", Name = nameof(AddService))]

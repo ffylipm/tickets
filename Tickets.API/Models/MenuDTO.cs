@@ -11,7 +11,7 @@ public partial class MenuDTO
 
     public string? Description { get; set; } = null;
 
-    public bool? Active { get; set; }
+    public bool Active { get; set; }
 
     public string? Path { get; set; } = null;
 }

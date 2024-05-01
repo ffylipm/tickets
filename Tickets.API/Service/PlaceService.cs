@@ -14,9 +14,9 @@ namespace Tickets.API.Service
             this.context = context;
         }
 
-        public async Task<IEnumerable<PlaceDTO>> GetPlaces(int? placeId, string? nameFull, string? nameShort, string? address)
+        public async Task<IEnumerable<PlaceDTO>> GetPlaces(int? placeId, string? nameFull, string? nameShort, string? address, bool? active)
         {
-            var query = context.Places.Where(r => r.Active);
+            var query = context.Places.Select(r => r);
 
             if (placeId.HasValue)
             {
@@ -36,6 +36,11 @@ namespace Tickets.API.Service
             if (!string.IsNullOrEmpty(address))
             {
                 query = query.Where(m => m.Address !=null && m.Address.Contains(address));
+            }
+
+            if (active.HasValue)
+            {
+                query = query.Where(m => m.Active == active.Value);
             }
 
             return await query.Select(r => new PlaceDTO
@@ -86,11 +91,16 @@ namespace Tickets.API.Service
 
         public async Task<PlaceDTO> UpdPlace(PlaceDTO upd)
         {
-            Place place = await GetPlace(upd.PlaceId);
+            Place place = await GetPlace(upd.PlaceId, active: false);
             place.Capacity = upd.Capacity;
             place.Address = upd.Address;
             place.NameShort = upd.NameShort;
             place.NameFull = upd.NameFull;
+
+            if (upd.Active && !place.Active)
+            {
+                place.Active = upd.Active;
+            }
 
             context.Places.Update(place);
             await context.SaveChangesAsync();
