@@ -9,13 +9,9 @@ public partial class TicketDTO
 
     public int EventId { get; set; }
 
-    public string UserId { get; set; } = null!;
+    public string? UserId { get; set; }
 
     public bool Used { get; set; }
-
+    public bool Active { get; set; }
     public DateTime IssueOn { get; set; }
-
-    public virtual EventDTO Event { get; set; } = null!;
-
-    public virtual UserDTO User { get; set; } = null!;
 }

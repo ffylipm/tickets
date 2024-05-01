@@ -25,15 +25,15 @@ public partial class TicketsContext : DbContext
 
     public virtual DbSet<RolMenu> RolMenus { get; set; }
 
+    public virtual DbSet<Service> Services { get; set; }
+
     public virtual DbSet<Ticket> Tickets { get; set; }
+
+    public virtual DbSet<TicketService> TicketServices { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UserRol> UserRols { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=18.221.84.173;Database=Tickets; User Id=ws;Password=ws; Encrypt=false;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -159,13 +159,36 @@ public partial class TicketsContext : DbContext
                 .HasConstraintName("FK_RolMenu_rolId");
         });
 
+        modelBuilder.Entity<Service>(entity =>
+        {
+            entity.HasKey(e => e.ServiceId).HasName("PK__Service__455070DF5E2EB178");
+
+            entity.ToTable("Service");
+
+            entity.Property(e => e.ServiceId).HasColumnName("serviceId");
+            entity.Property(e => e.Active)
+                .HasDefaultValue(true)
+                .HasColumnName("active");
+            entity.Property(e => e.Description)
+                .HasMaxLength(2000)
+                .IsUnicode(false)
+                .HasColumnName("description");
+            entity.Property(e => e.Name)
+                .HasMaxLength(200)
+                .IsUnicode(false)
+                .HasColumnName("name");
+        });
+
         modelBuilder.Entity<Ticket>(entity =>
         {
-            entity.HasKey(e => e.TicketId).HasName("PK__Ticket__3333C61045FA78F0");
+            entity.HasKey(e => e.TicketId).HasName("PK__Ticket__3333C610E14EDEC3");
 
             entity.ToTable("Ticket");
 
             entity.Property(e => e.TicketId).HasColumnName("ticketId");
+            entity.Property(e => e.Active)
+                .HasDefaultValue(true)
+                .HasColumnName("active");
             entity.Property(e => e.EventId).HasColumnName("eventId");
             entity.Property(e => e.IssueOn)
                 .HasDefaultValueSql("(getdate())")
@@ -186,6 +209,29 @@ public partial class TicketsContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ticket_userId");
+        });
+
+        modelBuilder.Entity<TicketService>(entity =>
+        {
+            entity.HasKey(e => new { e.TicketId, e.ServiceId }).HasName("PK_ticketservice_ticketid_serviceid");
+
+            entity.ToTable("TicketService");
+
+            entity.Property(e => e.TicketId).HasColumnName("ticketId");
+            entity.Property(e => e.ServiceId).HasColumnName("serviceId");
+            entity.Property(e => e.Active)
+                .HasDefaultValue(true)
+                .HasColumnName("active");
+
+            entity.HasOne(d => d.Service).WithMany(p => p.TicketServices)
+                .HasForeignKey(d => d.ServiceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ticketservice_serviceId");
+
+            entity.HasOne(d => d.Ticket).WithMany(p => p.TicketServices)
+                .HasForeignKey(d => d.TicketId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ticketservice_ticketid");
         });
 
         modelBuilder.Entity<User>(entity =>

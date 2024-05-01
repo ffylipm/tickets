@@ -78,28 +78,17 @@ namespace Tickets.API.Service
         {
             using (var tx = await context.Database.BeginTransactionAsync())
             {
-                Rol rol = new()
+                Rol rol = new Rol() 
                 {
-                    RolId = add.RolId,
                     Active = true,
                     Name = add.Name,
                     Description = add.Description,
-                    Virtual = add.Virtual
+                    Virtual = add.Virtual,
+                    RolId = add.RolId
                 };
 
                 context.Rols.Add(rol);
                 await context.SaveChangesAsync();
-
-                IEnumerable<RolMenu> menus = add.Menus.Select(m => new RolMenu()
-                {
-                    Active = m.Active.Value,
-                    MenuId = m.MenuId,
-                    RolId = rol.RolId
-                }).ToList();
-
-                context.RolMenus.AddRange(menus);
-                await context.SaveChangesAsync();
-
                 await tx.CommitAsync();
             }
 

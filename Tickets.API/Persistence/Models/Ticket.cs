@@ -15,7 +15,11 @@ public partial class Ticket
 
     public DateTime IssueOn { get; set; }
 
+    public bool Active { get; set; }
+
     public virtual Event Event { get; set; } = null!;
+
+    public virtual ICollection<TicketService> TicketServices { get; set; } = new List<TicketService>();
 
     public virtual User User { get; set; } = null!;
 }
